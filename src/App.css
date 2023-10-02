@@ -56,10 +56,12 @@ img {
 #left-panel {
   margin: 5px;
   border-radius: 10px;
-  background-color: aqua;
-  width: 50vw;
+  /* background-color: aqua; */
+  width: 60vw;
   height: 100%;
   overflow: auto;
+  padding: 10px;
+  padding-top: 15px;
 }
 
 #right-panel {
@@ -71,5 +73,5 @@ img {
   border-radius: 10px;
   margin: 5px;
   background-color: green;
-  width: 49vw;
+  width: 39vw;
 }
