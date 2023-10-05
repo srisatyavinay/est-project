@@ -15,8 +15,9 @@ export const DataProvider = (props) => {
         return response.json();
       })
       .then((jsonData) => {
-        setData(jsonData);
         setSrcData(jsonData);
+        const srcData = jsonData.filter((item) => new Date(item.incidentdate).getFullYear() === 2023);
+        setData(srcData);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);

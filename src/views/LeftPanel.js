@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
 // @mui
@@ -18,32 +18,122 @@ import {
     AppCurrentSubject,
     AppConversionRates,
 } from '../sections/@dashboard/app';
+import { DataContext } from "../contexts/DataContext";
 
 export const LeftPanel = () => {
     const theme = useTheme();
+    const [SrcData, setSrcData, Data, setData] = useContext(DataContext);
+
+    const companyDict = {
+        "ADDAX": "Addax Petroleum Development Company Nigeria Limited",
+        "AENR": "Agip Energy Natural Resources Limited",
+        "AGIP": "Agip Energy Natural Resources Limited",
+        "ALLIED": "Allied Energy Resources Nigeria Limited",
+        "AMNI": "AMNI International Petroleum Development Company Ltd",
+        "ANTAN": "ANTAN Exploration and Production Ltd (formaly Addax Petroleum)",
+        "Aiteo E&P": "Aiteo Exploration and Production",
+        "BRITANIA": "Britania-U Nigeria Ltd",
+        "Belema E&P": "Belema Exploration and Production",
+        "CHEVPEN": "Chevron/Pennington",
+        "CHEVRON": "Chevron Nigeria Limited",
+        "CHORUS": "Chorus Energy Limited",
+        "Dubri": "Dubri Oil Company Limited",
+        "ERL": "Enageed Resource Limited",
+        "ESSO": "Esso Exploration and Production Nigeria Limited",
+        "EXPRESS": "Express Petroleum and Gas Comany Limited",
+        "Eroton E&P": "Eroton Exploration & Production Limited",
+        "FIRST": "First Hydrocarbon Nigeria",
+        "FOL": "Fronteir Oil Ltd",
+        "Heritage": "Heritage Energy Operational Service Limited",
+        "KRPC": "Kaduna Refining and Petrochemical Company",
+        "MPN": "Mobil Producing Nigeria Unlimited",
+        "Midwestern": "Midwestern Oil & Gas Corporation",
+        "Millennium O&G": "Millennium Oil & Gas",
+        "NAE": "Nigerian Agip Energy",
+        "NAOC": "Nigerian Agip Oil Company",
+        "NDPR": "Niger Delta Petroleum Resources Limited",
+        "NDWEST": "ND Western",
+        "NEPL": "NNPC Exploration & Production Ltd",
+        "NEPN": "Network Exploration & Production Nigeria Ltd",
+        "NPDC": "National Petroleum Development Company",
+        "Neconde": "Neconde Energy Limited",
+        "NewCross E&P": "NewCross Exploration and Production",
+        "ORIENTAL": "Oriental Energy Resources Ltd",
+        "PHRC": "Port Harcourt Refining and Petrochemical Company",
+        "PHRPC": "Port Harcourt Refining and Petrochemical Company",
+        "POOCN": "Pan Ocean Oil Corporation Nigeria Limited",
+        "PPMC": "Pipelines and Products Marketing Company",
+        "Pillar": "Pillar Oil Limited",
+        "Platform": "Platform Petroleum Limited",
+        "SAPETRO": "South Atlantic Petroleum",
+        "SEEPCO": "Sterling Exploration and Energy Production Company Limited",
+        "SEPLAT": "Seplat Petroleum Development Company Limited",
+        "SNEPCO": "Shell Nigeria Exploration and Production Company Limited",
+        "SPDC": "Shell Petroleum Development Company",
+        "STARDEEP": "Star Deep Water Petroleum",
+        "Sahara": "Sahara Energy Fields Limited",
+        "TOTAL": "Total Exploration and Production",
+        "TUPNI": "Total Upstream Nigeria",
+        "UERL": "Universal Energy Resources Limited",
+        "WALTSMITH": "Walter Smith Petroman Oil Ltd",
+        "WRPC": "Warri Refining and Petrochemical Company",
+        "nyd": "Not yet determined"
+    }
+
+    const VolumeCalculator = (Data) => {
+        let volume = 0;
+        for (let i = 0; i < Data.length; i++) {
+            if(Data[i].estimatedquantity && isNaN(Number(Data[i].estimatedquantity)) === false)
+                volume += Number(Data[i].estimatedquantity);
+        }
+        return volume;
+    }
+
+    const CompanyCalculator = (Data) => {
+        let company = {};
+        for (let i = 0; i < Data.length; i++) {
+            if(Data[i].company && company[Data[i].company] === undefined)
+                company[Data[i].company] = 1;
+            else if(Data[i].company && company[Data[i].company] !== undefined)
+                company[Data[i].company] += 1;
+        }
+
+        let max = 0;
+        let maxCompany = "";
+        for (const [key, value] of Object.entries(company)) {
+            if(value > max) {
+                max = value;
+                maxCompany = key;
+            }
+        }
+        console.log(company);
+        console.log(companyDict[maxCompany]);
+        return companyDict[maxCompany];
+    }
+
     return (
         <div id="left-panel">
             <Container maxWidth="xl">
-                <Typography variant="h4" sx={{ mb: 5 }}>
-                    Hi, Welcome back
+                <Typography variant="h3" sx={{ mb: 5 }}>
+                    Oil Spill Monitor
                 </Typography>
 
-                <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6} md={3}>
-                        <AppWidgetSummary title="Weekly Sales" total={714000} icon={'ant-design:android-filled'} />
+                {Data ? <Grid container spacing={3}>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <AppWidgetSummary title="Volume of oil spills in barrels(~160l)" total={VolumeCalculator(Data)} number={true} color="error" icon={'openmoji:oil-spill'} />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={3}>
-                        <AppWidgetSummary title="New Users" total={1352831} color="info" icon={'ant-design:apple-filled'} />
+                    <Grid item xs={12} sm={6} md={4}>
+                        <AppWidgetSummary title="No.of incidents" total={Data.length} number={true} color="info" icon={'carbon:summary-kpi'} />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={3}>
-                        <AppWidgetSummary title="Item Orders" total={1723315} color="warning" icon={'ant-design:windows-filled'} />
+                    <Grid item xs={12} sm={6} md={4}>
+                        <AppWidgetSummary title="Most spills caused by" total={CompanyCalculator(Data)} number={false} color="warning" icon={'mdi:company'} />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    {/* <Grid item xs={12} sm={6} md={3}>
                         <AppWidgetSummary title="Bug Reports" total={234} color="error" icon={'ant-design:bug-filled'} />
-                    </Grid>
+                    </Grid> */}
 
                     <Grid item xs={12} md={6} lg={8}>
                         <AppWebsiteVisits
@@ -206,7 +296,7 @@ export const LeftPanel = () => {
                             ]}
                         />
                     </Grid>
-                </Grid>
+                </Grid> : <p>Loading...</p>}
             </Container>
         </div>
     );
