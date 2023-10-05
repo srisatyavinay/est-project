@@ -20,13 +20,23 @@ export default function AppWebsiteVisits({ title, subheader, chartLabels, chartD
     fill: { type: chartData.map((i) => i.fill) },
     labels: chartLabels,
     xaxis: { type: 'datetime' },
+    yaxis: {
+      labels: {
+        formatter: (y) => {
+          if (typeof y !== 'undefined') {
+            return `${Number(y.toFixed(0))}`;
+          }
+          return y;
+        },
+      },
+    },
     tooltip: {
       shared: true,
       intersect: false,
       y: {
         formatter: (y) => {
           if (typeof y !== 'undefined') {
-            return `${y.toFixed(0)} visits`;
+            return `${Number(y.toFixed(0))} barrels`;
           }
           return y;
         },

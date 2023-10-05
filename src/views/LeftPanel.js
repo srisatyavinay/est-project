@@ -80,6 +80,24 @@ export const LeftPanel = () => {
         "nyd": "Not yet determined"
     }
 
+    const habitatDict = {
+        co: "Coastland",
+        iw: "Inland waters",
+        la: "Land",
+        ns: "Near shore",
+        of: "Offshore",
+        ss: "Seasonal swamp",
+        sw: "Swamp"
+    }
+
+    const causeDict = {
+        "cor": "corrosion",
+        "eqf": "equipment failure",
+        "ome": "operational/maintenance error",
+        "sab": "sabotage/theft",
+        "ytd": "yet to determine"
+    }
+
     const VolumeCalculator = (Data) => {
         let volume = 0;
         for (let i = 0; i < Data.length; i++) {
@@ -142,7 +160,17 @@ export const LeftPanel = () => {
             topThree["Others"] = remaining;
         }
 
-        return topThree;
+        // return topThree;
+        // change topThree into the following format {[label: "Company Name", value: 123]}
+        let topThreeArray = [];
+        for (const [key, value] of Object.entries(topThree)) {
+            if (companyDict[key] === undefined)
+                topThreeArray.push({label: key, value: value});
+            else
+                topThreeArray.push({label: companyDict[key], value: value});
+        }
+
+        return topThreeArray;
     }
 
     const TopThreeCauses = (Data) => {
@@ -181,7 +209,17 @@ export const LeftPanel = () => {
             topThree["Others"] = remaining;
         }
 
-        return topThree;
+        // return topThree;
+        // change topThree into the following format {[label: "Cause", value: abc]}
+        let topThreeArray = [];
+        for (const [key, value] of Object.entries(topThree)) {
+            if (causeDict[key] === undefined)
+                topThreeArray.push({label: key, value: value});
+            else
+                topThreeArray.push({label: causeDict[key], value: value});
+        }
+
+        return topThreeArray;
     }
 
     const TopThreeSpillAreaHabitats = (Data) => {
@@ -209,7 +247,7 @@ export const LeftPanel = () => {
         let count = 0;
         let remaining = 0;
         for (const [key, value] of Object.entries(sorted)) {
-            if(count < 3) {
+            if(count < 5) {
                 topThree[key] = value;
                 count++;
             }
@@ -217,16 +255,26 @@ export const LeftPanel = () => {
                 remaining += value;
             }
         }
-        if (count >= 3) {
+        if (count >= 5) {
             topThree["Others"] = remaining;
         }
 
-        return topThree;
+        // return topThree;
+        // change topThree into the following format {[label: "Company Name", value: 123]}
+        let topFiveArray = [];
+        for (const [key, value] of Object.entries(topThree)) {
+            if (habitatDict[key] === undefined)
+                topFiveArray.push({label: key, value: value});
+            else
+                topFiveArray.push({label: habitatDict[key], value: value});
+        }
+
+        return topFiveArray;
 
     }
 
     const OilSpillVolumeMonthWise = (Data) => {
-        let volume = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 ,8:0, 9:0, 10:0, 11:0, 12:0};
+        let volume = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 ,8:0, 9:0, 10:0, 11:0};
         for (let i = 0; i < Data.length; i++) {
             if(Data[i].estimatedquantity && isNaN(Number(Data[i].estimatedquantity)) === false) {
                 let month = new Date(Data[i].incidentdate).getMonth();
@@ -236,11 +284,15 @@ export const LeftPanel = () => {
                     volume[month] += Number(Data[i].estimatedquantity);
             }
         }
-        return volume;
+        console.log(volume);
+        // From the values in the volume object, create an array of values with the floor function and convert it into a natural number using parseInt
+        console.log(Object.values(volume).map((item) => parseInt(Math.round(item), 10)))
+        return Object.values(volume).map((item) => parseInt(Math.round(item).toString(), 10));
+
     }
 
     const RecoveredOilSpillVolumeMonthWise = (Data) => {
-        let volume = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 ,8:0, 9:0, 10:0, 11:0, 12:0};
+        let volume = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 ,8:0, 9:0, 10:0, 11:0};
         for (let i = 0; i < Data.length; i++) {
             if(Data[i].quantityrecovered && isNaN(Number(Data[i].quantityrecovered)) === false) {
                 let month = new Date(Data[i].incidentdate).getMonth();
@@ -250,7 +302,7 @@ export const LeftPanel = () => {
                     volume[month] += Number(Data[i].quantityrecovered);
             }
         }
-        return volume;
+        return Object.values(volume);
     }
 
     return (
@@ -279,39 +331,33 @@ export const LeftPanel = () => {
 
                     <Grid item xs={12} md={6} lg={8}>
                         <AppWebsiteVisits
-                            title="Website Visits"
-                            subheader="(+43%) than last year"
+                            title="Oill Spills Graph"
                             chartLabels={[
-                                '01/01/2003',
-                                '02/01/2003',
-                                '03/01/2003',
-                                '04/01/2003',
-                                '05/01/2003',
-                                '06/01/2003',
-                                '07/01/2003',
-                                '08/01/2003',
-                                '09/01/2003',
-                                '10/01/2003',
-                                '11/01/2003',
+                                '01/01/2022',
+                                '02/01/2022',
+                                '03/01/2022',
+                                '04/01/2022',
+                                '05/01/2022',
+                                '06/01/2022',
+                                '07/01/2022',
+                                '08/01/2022',
+                                '09/01/2022',
+                                '10/01/2022',
+                                '11/01/2022',
                             ]}
+                            // TODO: Change Labels (Remove hardcoding)
                             chartData={[
                                 {
-                                    name: 'Team A',
-                                    type: 'column',
-                                    fill: 'solid',
-                                    data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-                                },
-                                {
-                                    name: 'Team B',
+                                    name: 'Oil Spilled (bbl)',
                                     type: 'area',
                                     fill: 'gradient',
-                                    data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
+                                    data: OilSpillVolumeMonthWise(Data),
                                 },
                                 {
-                                    name: 'Team C',
+                                    name: 'Oil Recovered (bbl)',
                                     type: 'line',
                                     fill: 'solid',
-                                    data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
+                                    data: RecoveredOilSpillVolumeMonthWise(Data),
                                 },
                             ]}
                         />
@@ -319,51 +365,34 @@ export const LeftPanel = () => {
 
                     <Grid item xs={12} md={6} lg={4}>
                         <AppCurrentVisits
-                            title="Current Visits"
-                            chartData={[
-                                { label: 'America', value: 4344 },
-                                { label: 'Asia', value: 5435 },
-                                { label: 'Europe', value: 1443 },
-                                { label: 'Africa', value: 4443 },
-                            ]}
+                            title="Companies with most spills"
+                            chartData={TopThreeCompanies(Data)}
                             chartColors={[
+                                theme.palette.error.main,
+                                theme.palette.warning.main,
                                 theme.palette.primary.main,
                                 theme.palette.info.main,
-                                theme.palette.warning.main,
-                                theme.palette.error.main,
                             ]}
                         />
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={8}>
                         <AppConversionRates
-                            title="Conversion Rates"
-                            subheader="(+43%) than last year"
-                            chartData={[
-                                { label: 'Italy', value: 400 },
-                                { label: 'Japan', value: 430 },
-                                { label: 'China', value: 448 },
-                                { label: 'Canada', value: 470 },
-                                { label: 'France', value: 540 },
-                                { label: 'Germany', value: 580 },
-                                { label: 'South Korea', value: 690 },
-                                { label: 'Netherlands', value: 1100 },
-                                { label: 'United States', value: 1200 },
-                                { label: 'United Kingdom', value: 1380 },
-                            ]}
+                            title="Spill Area Habitats"
+                            chartData={TopThreeSpillAreaHabitats(Data)}
                         />
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={4}>
-                        <AppCurrentSubject
-                            title="Current Subject"
-                            chartLabels={['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math']}
-                            chartData={[
-                                { name: 'Series 1', data: [80, 50, 30, 40, 100, 20] },
-                                { name: 'Series 2', data: [20, 30, 40, 80, 20, 80] },
-                                { name: 'Series 3', data: [44, 76, 78, 13, 43, 10] },
+                        <AppCurrentVisits
+                            title="Major Spill Causes"
+                            chartData={TopThreeCauses(Data)}
+                            chartColors={[
+                                theme.palette.error.main,
+                                theme.palette.warning.main,
+                                theme.palette.primary.main,
+                                theme.palette.info.main,
                             ]}
-                            chartColors={[...Array(6)].map(() => theme.palette.text.secondary)}
                         />
                     </Grid>
 

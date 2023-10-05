@@ -358,7 +358,7 @@ export const Map = () => {
 
     return (
         <div id="right-panel">
-            Map
+            Map is Loading ...
         </div>
     );
 }
