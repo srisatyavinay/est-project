@@ -111,6 +111,148 @@ export const LeftPanel = () => {
         return companyDict[maxCompany];
     }
 
+    const TopThreeCompanies = (Data) => {
+        let company = {};
+        for (let i = 0; i < Data.length; i++) {
+            if(Data[i].company && company[Data[i].company] === undefined)
+                company[Data[i].company] = 1;
+            else if(Data[i].company && company[Data[i].company] !== undefined)
+                company[Data[i].company] += 1;
+        }
+
+        // sort the company object according to values in descending order
+        const sorted = Object.fromEntries(
+            Object.entries(company).sort(([,a],[,b]) => b-a)
+        );
+
+        // get the top three companies
+        let topThree = {};
+        let count = 0;
+        let remaining = 0;
+        for (const [key, value] of Object.entries(sorted)) {
+            if(count < 3) {
+                topThree[key] = value;
+                count++;
+            }
+            else {
+                remaining += value;
+            }
+        }
+        if (count >= 3) {
+            topThree["Others"] = remaining;
+        }
+
+        return topThree;
+    }
+
+    const TopThreeCauses = (Data) => {
+        let causes = {};
+        for (let i = 0; i < Data.length; i++) {
+            if(Data[i].cause) {
+                let causeList = Data[i].cause.split(",");
+                for (let j = 0; j < causeList.length; j++) {
+                    if(causes[causeList[j]] === undefined)
+                        causes[causeList[j]] = 1;
+                    else
+                        causes[causeList[j]] += 1;
+                }
+            }
+        }
+
+        // sort the causes object according to values in descending order
+        const sorted = Object.fromEntries(
+            Object.entries(causes).sort(([,a],[,b]) => b-a)
+        );
+
+        // get the top three causes
+        let topThree = {};
+        let count = 0;
+        let remaining = 0;
+        for (const [key, value] of Object.entries(sorted)) {
+            if(count < 3) {
+                topThree[key] = value;
+                count++;
+            }
+            else {
+                remaining += value;
+            }
+        }
+        if (count >= 3) {
+            topThree["Others"] = remaining;
+        }
+
+        return topThree;
+    }
+
+    const TopThreeSpillAreaHabitats = (Data) => {
+        // item.spillareahabitat
+        let habitats = {};
+        for (let i = 0; i < Data.length; i++) {
+            if(Data[i].spillareahabitat) {
+                let habitatList = Data[i].spillareahabitat.split(",");
+                for (let j = 0; j < habitatList.length; j++) {
+                    if(habitats[habitatList[j]] === undefined)
+                        habitats[habitatList[j]] = 1;
+                    else
+                        habitats[habitatList[j]] += 1;
+                }
+            }
+        }
+
+        // sort the habitats object according to values in descending order
+        const sorted = Object.fromEntries(
+            Object.entries(habitats).sort(([,a],[,b]) => b-a)
+        );
+
+        // get the top three habitats
+        let topThree = {};
+        let count = 0;
+        let remaining = 0;
+        for (const [key, value] of Object.entries(sorted)) {
+            if(count < 3) {
+                topThree[key] = value;
+                count++;
+            }
+            else {
+                remaining += value;
+            }
+        }
+        if (count >= 3) {
+            topThree["Others"] = remaining;
+        }
+
+        return topThree;
+
+    }
+
+    const OilSpillVolumeMonthWise = (Data) => {
+        let volume = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 ,8:0, 9:0, 10:0, 11:0, 12:0};
+        for (let i = 0; i < Data.length; i++) {
+            if(Data[i].estimatedquantity && isNaN(Number(Data[i].estimatedquantity)) === false) {
+                let month = new Date(Data[i].incidentdate).getMonth();
+                if(volume[month] === undefined)
+                    volume[month] = Number(Data[i].estimatedquantity);
+                else
+                    volume[month] += Number(Data[i].estimatedquantity);
+            }
+        }
+        return volume;
+    }
+
+    const RecoveredOilSpillVolumeMonthWise = (Data) => {
+        let volume = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 ,8:0, 9:0, 10:0, 11:0, 12:0};
+        for (let i = 0; i < Data.length; i++) {
+            if(Data[i].quantityrecovered && isNaN(Number(Data[i].quantityrecovered)) === false) {
+                let month = new Date(Data[i].incidentdate).getMonth();
+                if(volume[month] === undefined)
+                    volume[month] = Number(Data[i].quantityrecovered);
+                else
+                    volume[month] += Number(Data[i].quantityrecovered);
+            }
+        }
+        return volume;
+    }
+
     return (
         <div id="left-panel">
             <Container maxWidth="xl">
@@ -225,7 +367,7 @@ export const LeftPanel = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6} lg={8}>
+                    {/* <Grid item xs={12} md={6} lg={8}>
                         <AppNewsUpdate
                             title="News Update"
                             list={[...Array(5)].map((_, index) => ({
@@ -295,7 +437,7 @@ export const LeftPanel = () => {
                                 { id: '5', label: 'Sprint Showcase' },
                             ]}
                         />
-                    </Grid>
+                    </Grid> */}
                 </Grid> : <p>Loading...</p>}
             </Container>
         </div>

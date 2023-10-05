@@ -16,7 +16,7 @@ export const DataProvider = (props) => {
       })
       .then((jsonData) => {
         setSrcData(jsonData);
-        const srcData = jsonData.filter((item) => new Date(item.incidentdate).getFullYear() === 2023);
+        const srcData = jsonData.filter((item) => new Date(item.incidentdate).getFullYear() === 2022);
         setData(srcData);
       })
       .catch((error) => {
