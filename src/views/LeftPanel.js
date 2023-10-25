@@ -19,89 +19,16 @@ import {
     AppConversionRates,
 } from '../sections/@dashboard/app';
 import { DataContext } from "../contexts/DataContext";
+import { contDict, stausDict, zonalOfficeDict, companyDict, facilityDict, causeDict, initContMesDict, habitatDict, statesDict } from "../utils/dictionaries";
 
 export const LeftPanel = () => {
     const theme = useTheme();
     const [SrcData, setSrcData, Data, setData] = useContext(DataContext);
 
-    const companyDict = {
-        "ADDAX": "Addax Petroleum Development Company Nigeria Limited",
-        "AENR": "Agip Energy Natural Resources Limited",
-        "AGIP": "Agip Energy Natural Resources Limited",
-        "ALLIED": "Allied Energy Resources Nigeria Limited",
-        "AMNI": "AMNI International Petroleum Development Company Ltd",
-        "ANTAN": "ANTAN Exploration and Production Ltd (formaly Addax Petroleum)",
-        "Aiteo E&P": "Aiteo Exploration and Production",
-        "BRITANIA": "Britania-U Nigeria Ltd",
-        "Belema E&P": "Belema Exploration and Production",
-        "CHEVPEN": "Chevron/Pennington",
-        "CHEVRON": "Chevron Nigeria Limited",
-        "CHORUS": "Chorus Energy Limited",
-        "Dubri": "Dubri Oil Company Limited",
-        "ERL": "Enageed Resource Limited",
-        "ESSO": "Esso Exploration and Production Nigeria Limited",
-        "EXPRESS": "Express Petroleum and Gas Comany Limited",
-        "Eroton E&P": "Eroton Exploration & Production Limited",
-        "FIRST": "First Hydrocarbon Nigeria",
-        "FOL": "Fronteir Oil Ltd",
-        "Heritage": "Heritage Energy Operational Service Limited",
-        "KRPC": "Kaduna Refining and Petrochemical Company",
-        "MPN": "Mobil Producing Nigeria Unlimited",
-        "Midwestern": "Midwestern Oil & Gas Corporation",
-        "Millennium O&G": "Millennium Oil & Gas",
-        "NAE": "Nigerian Agip Energy",
-        "NAOC": "Nigerian Agip Oil Company",
-        "NDPR": "Niger Delta Petroleum Resources Limited",
-        "NDWEST": "ND Western",
-        "NEPL": "NNPC Exploration & Production Ltd",
-        "NEPN": "Network Exploration & Production Nigeria Ltd",
-        "NPDC": "National Petroleum Development Company",
-        "Neconde": "Neconde Energy Limited",
-        "NewCross E&P": "NewCross Exploration and Production",
-        "ORIENTAL": "Oriental Energy Resources Ltd",
-        "PHRC": "Port Harcourt Refining and Petrochemical Company",
-        "PHRPC": "Port Harcourt Refining and Petrochemical Company",
-        "POOCN": "Pan Ocean Oil Corporation Nigeria Limited",
-        "PPMC": "Pipelines and Products Marketing Company",
-        "Pillar": "Pillar Oil Limited",
-        "Platform": "Platform Petroleum Limited",
-        "SAPETRO": "South Atlantic Petroleum",
-        "SEEPCO": "Sterling Exploration and Energy Production Company Limited",
-        "SEPLAT": "Seplat Petroleum Development Company Limited",
-        "SNEPCO": "Shell Nigeria Exploration and Production Company Limited",
-        "SPDC": "Shell Petroleum Development Company",
-        "STARDEEP": "Star Deep Water Petroleum",
-        "Sahara": "Sahara Energy Fields Limited",
-        "TOTAL": "Total Exploration and Production",
-        "TUPNI": "Total Upstream Nigeria",
-        "UERL": "Universal Energy Resources Limited",
-        "WALTSMITH": "Walter Smith Petroman Oil Ltd",
-        "WRPC": "Warri Refining and Petrochemical Company",
-        "nyd": "Not yet determined"
-    }
-
-    const habitatDict = {
-        co: "Coastland",
-        iw: "Inland waters",
-        la: "Land",
-        ns: "Near shore",
-        of: "Offshore",
-        ss: "Seasonal swamp",
-        sw: "Swamp"
-    }
-
-    const causeDict = {
-        "cor": "corrosion",
-        "eqf": "equipment failure",
-        "ome": "operational/maintenance error",
-        "sab": "sabotage/theft",
-        "ytd": "yet to determine"
-    }
-
     const VolumeCalculator = (Data) => {
         let volume = 0;
         for (let i = 0; i < Data.length; i++) {
-            if(Data[i].estimatedquantity && isNaN(Number(Data[i].estimatedquantity)) === false)
+            if (Data[i].estimatedquantity && isNaN(Number(Data[i].estimatedquantity)) === false)
                 volume += Number(Data[i].estimatedquantity);
         }
         return volume;
@@ -110,16 +37,16 @@ export const LeftPanel = () => {
     const CompanyCalculator = (Data) => {
         let company = {};
         for (let i = 0; i < Data.length; i++) {
-            if(Data[i].company && company[Data[i].company] === undefined)
+            if (Data[i].company && company[Data[i].company] === undefined)
                 company[Data[i].company] = 1;
-            else if(Data[i].company && company[Data[i].company] !== undefined)
+            else if (Data[i].company && company[Data[i].company] !== undefined)
                 company[Data[i].company] += 1;
         }
 
         let max = 0;
         let maxCompany = "";
         for (const [key, value] of Object.entries(company)) {
-            if(value > max) {
+            if (value > max) {
                 max = value;
                 maxCompany = key;
             }
@@ -132,15 +59,15 @@ export const LeftPanel = () => {
     const TopThreeCompanies = (Data) => {
         let company = {};
         for (let i = 0; i < Data.length; i++) {
-            if(Data[i].company && company[Data[i].company] === undefined)
+            if (Data[i].company && company[Data[i].company] === undefined)
                 company[Data[i].company] = 1;
-            else if(Data[i].company && company[Data[i].company] !== undefined)
+            else if (Data[i].company && company[Data[i].company] !== undefined)
                 company[Data[i].company] += 1;
         }
 
         // sort the company object according to values in descending order
         const sorted = Object.fromEntries(
-            Object.entries(company).sort(([,a],[,b]) => b-a)
+            Object.entries(company).sort(([, a], [, b]) => b - a)
         );
 
         // get the top three companies
@@ -148,7 +75,7 @@ export const LeftPanel = () => {
         let count = 0;
         let remaining = 0;
         for (const [key, value] of Object.entries(sorted)) {
-            if(count < 3) {
+            if (count < 3) {
                 topThree[key] = value;
                 count++;
             }
@@ -165,9 +92,9 @@ export const LeftPanel = () => {
         let topThreeArray = [];
         for (const [key, value] of Object.entries(topThree)) {
             if (companyDict[key] === undefined)
-                topThreeArray.push({label: key, value: value});
+                topThreeArray.push({ label: key, value: value });
             else
-                topThreeArray.push({label: companyDict[key], value: value});
+                topThreeArray.push({ label: companyDict[key], value: value });
         }
 
         return topThreeArray;
@@ -176,10 +103,10 @@ export const LeftPanel = () => {
     const TopThreeCauses = (Data) => {
         let causes = {};
         for (let i = 0; i < Data.length; i++) {
-            if(Data[i].cause) {
+            if (Data[i].cause) {
                 let causeList = Data[i].cause.split(",");
                 for (let j = 0; j < causeList.length; j++) {
-                    if(causes[causeList[j]] === undefined)
+                    if (causes[causeList[j]] === undefined)
                         causes[causeList[j]] = 1;
                     else
                         causes[causeList[j]] += 1;
@@ -189,7 +116,7 @@ export const LeftPanel = () => {
 
         // sort the causes object according to values in descending order
         const sorted = Object.fromEntries(
-            Object.entries(causes).sort(([,a],[,b]) => b-a)
+            Object.entries(causes).sort(([, a], [, b]) => b - a)
         );
 
         // get the top three causes
@@ -197,7 +124,7 @@ export const LeftPanel = () => {
         let count = 0;
         let remaining = 0;
         for (const [key, value] of Object.entries(sorted)) {
-            if(count < 3) {
+            if (count < 3) {
                 topThree[key] = value;
                 count++;
             }
@@ -214,9 +141,9 @@ export const LeftPanel = () => {
         let topThreeArray = [];
         for (const [key, value] of Object.entries(topThree)) {
             if (causeDict[key] === undefined)
-                topThreeArray.push({label: key, value: value});
+                topThreeArray.push({ label: key, value: value });
             else
-                topThreeArray.push({label: causeDict[key], value: value});
+                topThreeArray.push({ label: causeDict[key], value: value });
         }
 
         return topThreeArray;
@@ -226,10 +153,10 @@ export const LeftPanel = () => {
         // item.spillareahabitat
         let habitats = {};
         for (let i = 0; i < Data.length; i++) {
-            if(Data[i].spillareahabitat) {
+            if (Data[i].spillareahabitat) {
                 let habitatList = Data[i].spillareahabitat.split(",");
                 for (let j = 0; j < habitatList.length; j++) {
-                    if(habitats[habitatList[j]] === undefined)
+                    if (habitats[habitatList[j]] === undefined)
                         habitats[habitatList[j]] = 1;
                     else
                         habitats[habitatList[j]] += 1;
@@ -239,7 +166,7 @@ export const LeftPanel = () => {
 
         // sort the habitats object according to values in descending order
         const sorted = Object.fromEntries(
-            Object.entries(habitats).sort(([,a],[,b]) => b-a)
+            Object.entries(habitats).sort(([, a], [, b]) => b - a)
         );
 
         // get the top three habitats
@@ -247,7 +174,7 @@ export const LeftPanel = () => {
         let count = 0;
         let remaining = 0;
         for (const [key, value] of Object.entries(sorted)) {
-            if(count < 5) {
+            if (count < 5) {
                 topThree[key] = value;
                 count++;
             }
@@ -264,9 +191,9 @@ export const LeftPanel = () => {
         let topFiveArray = [];
         for (const [key, value] of Object.entries(topThree)) {
             if (habitatDict[key] === undefined)
-                topFiveArray.push({label: key, value: value});
+                topFiveArray.push({ label: key, value: value });
             else
-                topFiveArray.push({label: habitatDict[key], value: value});
+                topFiveArray.push({ label: habitatDict[key], value: value });
         }
 
         return topFiveArray;
@@ -274,11 +201,11 @@ export const LeftPanel = () => {
     }
 
     const OilSpillVolumeMonthWise = (Data) => {
-        let volume = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 ,8:0, 9:0, 10:0, 11:0};
+        let volume = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0 };
         for (let i = 0; i < Data.length; i++) {
-            if(Data[i].estimatedquantity && isNaN(Number(Data[i].estimatedquantity)) === false) {
+            if (Data[i].estimatedquantity && isNaN(Number(Data[i].estimatedquantity)) === false) {
                 let month = new Date(Data[i].incidentdate).getMonth();
-                if(volume[month] === undefined)
+                if (volume[month] === undefined)
                     volume[month] = Number(Data[i].estimatedquantity);
                 else
                     volume[month] += Number(Data[i].estimatedquantity);
@@ -292,11 +219,11 @@ export const LeftPanel = () => {
     }
 
     const RecoveredOilSpillVolumeMonthWise = (Data) => {
-        let volume = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 ,8:0, 9:0, 10:0, 11:0};
+        let volume = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0 };
         for (let i = 0; i < Data.length; i++) {
-            if(Data[i].quantityrecovered && isNaN(Number(Data[i].quantityrecovered)) === false) {
+            if (Data[i].quantityrecovered && isNaN(Number(Data[i].quantityrecovered)) === false) {
                 let month = new Date(Data[i].incidentdate).getMonth();
-                if(volume[month] === undefined)
+                if (volume[month] === undefined)
                     volume[month] = Number(Data[i].quantityrecovered);
                 else
                     volume[month] += Number(Data[i].quantityrecovered);
