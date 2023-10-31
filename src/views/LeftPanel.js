@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography } from '@mui/material';
+import { Grid, Container, Typography, Autocomplete, TextField, Button } from '@mui/material';
 // components
 import Iconify from '../components/iconify';
 // sections
@@ -23,7 +23,96 @@ import { contDict, stausDict, zonalOfficeDict, companyDict, facilityDict, causeD
 
 export const LeftPanel = () => {
     const theme = useTheme();
-    const [SrcData, setSrcData, Data, setData] = useContext(DataContext);
+    const [SrcData, setSrcData, Data, setData, filterOptions, setFilterOptions] = useContext(DataContext);
+    const [filterCriteria, setFilterCriteria] = React.useState({});
+
+    // const filterOptions = {
+    //     years: [...new Set(SrcData.map((item) => new Date(item.incidentdate).getFullYear()))],
+    //     habitats: [...new Set(SrcData.map((item) => item.spillareahabitat))],
+    //     companies: [...new Set(SrcData.map((item) => item.company))],
+    //     causes: [...new Set(SrcData.map((item) => item.cause))],
+    // };
+
+    useEffect(() => {
+        if (filterOptions) {
+            console.log(filterOptions);
+        }
+    }, [filterOptions]);
+
+
+    const handleFilterChange = (event, name, value) => {
+        setFilterCriteria({ ...filterCriteria, [name]: value });
+    };
+
+    const handleApplyFilters = () => {
+        applyFilters(filterCriteria);
+    };
+
+    const applyFilters = (criteria) => {
+        setFilterCriteria(criteria);
+
+        const filteredIncidents = SrcData.filter((incident) => {
+            // Check if each incident meets all filter criteria
+            for (const key in criteria) {
+
+                // if (criteria[key] && !criteria[key].includes(incident[key])) {
+                //     return false;
+                // }
+
+                // If year key is undefined or it is empty then filter by 2022 year
+                if (key === 'year' && (!criteria[key] || criteria[key].length === 0)) {
+                    if (new Date(incident.incidentdate).getFullYear() !== 2022) {
+                        return false;
+                    }
+                }
+
+                // If some key has an empty list, then ignore that key
+                if (criteria[key] && criteria[key].length === 0) {  
+                    continue;
+                }
+
+                // If key is year, check if the incident year is in the selected years
+                if (key === 'year') {
+                    if (criteria[key] && !criteria[key].includes(new Date(incident.incidentdate).getFullYear())) {
+                        return false;
+                    }
+                }
+
+                // If key is habitat, check if the incident habitat is in the selected habitats. For incident habitat, split the string by comma and check if any of the habitats is in the selected habitats. Even if one of it exists it is fine.
+                if (key === 'habitat') {
+                    // if (criteria[key] && !criteria[key].some((habitat) => incident.spillareahabitat.split(",").some((item) => item === habitat))) {
+                    //     return false;
+                    // }
+                    // Do not filter if habitat is undefined
+                    if (criteria[key] && !criteria[key].some((habitat) => incident.spillareahabitat && incident.spillareahabitat.split(",").some((item) => item === habitat))) {
+                        return false;
+                    }
+                }
+
+                // If key is cause, check if the incident cause is in the selected causes. For incident cause, split the string by comma and check if any of the causes is in the selected causes. Even if one of it exists it is fine.
+                if (key === 'cause') {
+                    // if (criteria[key] && !criteria[key].some((cause) => incident.cause.split(",").some((item) => item === cause))) {
+                    //     return false;
+                    // }
+
+                    // Do not filter if cause is undefined
+                    if (criteria[key] && !criteria[key].some((cause) => incident.cause && incident.cause.split(",").some((item) => item === cause))) {
+                        return false;
+                    }
+                }
+
+                // If key is company, just check if the incident company is in the selected companies
+                if (key === 'company') {
+                    if (criteria[key] && !criteria[key].includes(incident.company)) {
+                        return false;
+                    }
+                }
+            }
+            return true; // Include the incident if it meets all criteria
+        });
+
+        setData(filteredIncidents);
+    };
 
     const VolumeCalculator = (Data) => {
         let volume = 0;
@@ -323,77 +412,54 @@ export const LeftPanel = () => {
                         />
                     </Grid>
 
-                    {/* <Grid item xs={12} md={6} lg={8}>
-                        <AppNewsUpdate
-                            title="News Update"
-                            list={[...Array(5)].map((_, index) => ({
-                                id: faker.datatype.uuid(),
-                                title: faker.name.jobTitle(),
-                                description: faker.name.jobTitle(),
-                                image: `/assets/images/covers/cover_${index + 1}.jpg`,
-                                postedAt: faker.date.recent(),
-                            }))}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={4}>
-                        <AppOrderTimeline
-                            title="Order Timeline"
-                            list={[...Array(5)].map((_, index) => ({
-                                id: faker.datatype.uuid(),
-                                title: [
-                                    '1983, orders, $4220',
-                                    '12 Invoices have been paid',
-                                    'Order #37745 from September',
-                                    'New order placed #XF-2356',
-                                    'New order placed #XF-2346',
-                                ][index],
-                                type: `order${index + 1}`,
-                                time: faker.date.past(),
-                            }))}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={4}>
-                        <AppTrafficBySite
-                            title="Traffic by Site"
-                            list={[
-                                {
-                                    name: 'FaceBook',
-                                    value: 323234,
-                                    icon: <Iconify icon={'eva:facebook-fill'} color="#1877F2" width={32} />,
-                                },
-                                {
-                                    name: 'Google',
-                                    value: 341212,
-                                    icon: <Iconify icon={'eva:google-fill'} color="#DF3E30" width={32} />,
-                                },
-                                {
-                                    name: 'Linkedin',
-                                    value: 411213,
-                                    icon: <Iconify icon={'eva:linkedin-fill'} color="#006097" width={32} />,
-                                },
-                                {
-                                    name: 'Twitter',
-                                    value: 443232,
-                                    icon: <Iconify icon={'eva:twitter-fill'} color="#1C9CEA" width={32} />,
-                                },
-                            ]}
-                        />
-                    </Grid>
-
                     <Grid item xs={12} md={6} lg={8}>
-                        <AppTasks
-                            title="Tasks"
-                            list={[
-                                { id: '1', label: 'Create FireStone Logo' },
-                                { id: '2', label: 'Add SCSS and JS files if required' },
-                                { id: '3', label: 'Stakeholder Meeting' },
-                                { id: '4', label: 'Scoping & Estimations' },
-                                { id: '5', label: 'Sprint Showcase' },
-                            ]}
+                        <Autocomplete
+                            multiple
+                            id="year-filter"
+                            options={filterOptions.years}
+                            onChange={(event, value) => handleFilterChange(event, 'year', value)}
+                            renderInput={(params) => <TextField {...params} label="Year" variant="outlined" />}
                         />
-                    </Grid> */}
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={4}>
+                        <Autocomplete
+                            multiple
+                            id="habitat-filter"
+                            options={filterOptions.habitats}
+                            onChange={(event, value) => handleFilterChange(event, 'habitat', value)}
+                            renderInput={(params) => <TextField {...params} label="Habitat" variant="outlined" />}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={4}>
+                        <Autocomplete
+                            multiple
+                            id="company-filter"
+                            options={filterOptions?.companies || []}
+                            onChange={(event, value) => handleFilterChange(event, 'company', value)}
+                            renderInput={(params) => <TextField {...params} label="Company" variant="outlined" />}
+                        />
+
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={4}>
+                        <Autocomplete
+                            multiple
+                            id="cause-filter"
+                            options={filterOptions.causes}
+                            onChange={(event, value) => handleFilterChange(event, 'cause', value)}
+                            renderInput={(params) => <TextField {...params} label="Cause" variant="outlined" />}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={4}>
+                        <Button variant="contained" color="primary" onClick={handleApplyFilters}>
+                            Apply Filters
+                        </Button>
+                    </Grid>
+
+
                 </Grid> : <p>Loading...</p>}
             </Container>
         </div>

@@ -11,6 +11,7 @@ export const Map = () => {
     const [MapsLibrary, setMapsLibrary] = useState(null);
     const [MarkerLibrary, setMarkerLibrary] = useState(null);
     const [Google, setGoogle] = useState(null);
+    const [Markers, setMarkers] = useState([]);
 
     useEffect(() => {
         const additionalOptions = {};
@@ -58,6 +59,14 @@ export const Map = () => {
                 // return item.latitude !== null && item.longitude !== null && new Date(item.incidentdate).getFullYear() === 2023
                 return item.latitude !== null && item.longitude !== null;
             });
+
+            // remove all the markers from the map
+            Markers.forEach((item) => {
+                item.setMap(null);
+            });
+            // clear the markers array
+            setMarkers([]);
+            
             // mark the points on the map
             filteredData.forEach((item) => {
                 if (!isNaN(Number(item.latitude)) && !isNaN(Number(item.longitude))) {
@@ -67,6 +76,8 @@ export const Map = () => {
                         position: position,
                         // title: item.incidentnumber,
                     });
+
+                    setMarkers((prev) => [...prev, marker]);
 
                     let contentString = ``;
 
